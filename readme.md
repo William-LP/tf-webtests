@@ -1,5 +1,5 @@
 # web-test
-This module allows you to setup [Azure Web Tests](https://learn.microsoft.com/en-us/azure/azure-monitor/app/availability-alerts).
+This module allows you to setup [Azure Web Tests](https://learn.microsoft.com/en-us/previous-versions/azure/azure-monitor/app/monitor-web-app-availability).
 
 ## Example usage
 
