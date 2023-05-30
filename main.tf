@@ -14,12 +14,13 @@ locals {
       guid                      = "${substr(strrev(sha1(k)), 0, 8)}-${substr(strrev(sha1(k)), 8, 4)}-${substr(strrev(sha1(k)), 12, 4)}-${substr(strrev(sha1(k)), 16, 4)}-${substr(strrev(sha1(k)), 20, 12)}"
       tags                      = var.tags
       match_content             = v.match_content != null ? v.match_content : null
+      headers                   = v.headers != null ? v.headers : null
     }
   }
 }
 
 resource "azurerm_application_insights_web_test" "web_test" {
-  for_each                = local.urls
+  for_each                = { for k, v in local.urls : k => v if v.headers == null }
   name                    = each.key
   location                = var.application_insights.location
   resource_group_name     = var.application_insights.resource_group_name
@@ -44,4 +45,44 @@ resource "azurerm_application_insights_web_test" "web_test" {
     parse_dependent_requests  = each.value.parse_dependent_requests
     match_content             = each.value.match_content
   })
+}
+
+resource "azurerm_application_insights_standard_web_test" "web_test" {
+  for_each                = { for k, v in local.urls : k => v if v.headers != null }
+  name                    = each.key
+  resource_group_name     = var.application_insights.resource_group_name
+  location                = var.application_insights.location
+  application_insights_id = var.application_insights.id
+  geo_locations           = each.value.geo_locations
+  retry_enabled           = each.value.retry_enabled
+  description             = each.value.description
+  frequency               = each.value.frequency
+  timeout                 = each.value.frequency
+  tags                    = var.tags
+
+  request {
+    url                              = each.value.url
+    http_verb                        = upper(each.value.method)
+    parse_dependent_requests_enabled = each.value.parse_dependent_requests
+
+    dynamic "header" {
+      for_each = each.value.headers
+      content {
+        name  = header.key
+        value = header.value
+      }
+    }
+  }
+
+  validation_rules {
+    expected_status_code = each.value.expected_http_status_code
+    dynamic "content" {
+      for_each = {for k,v in [each.value.match_content] : k => v if v != null }
+      content {
+        content_match      = content.value
+        ignore_case        = true
+        pass_if_text_found = true
+      }
+    }
+  }
 }
