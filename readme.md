@@ -52,7 +52,7 @@ module "web_test" {
   default_parse_dependent_requests = true
   default_retry_enabled            = true
   default_timeout                  = 30  
-  tags = { "environement = "prod" }
+  tags = { "environement" = "prod" }
 }
 ```
 
