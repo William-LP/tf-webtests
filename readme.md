@@ -1,5 +1,8 @@
 # web-test
-This module allows you to setup [Azure Web Tests](https://learn.microsoft.com/en-us/previous-versions/azure/azure-monitor/app/monitor-web-app-availability).
+This module allows you to setup [Azure classic Web Tests](https://learn.microsoft.com/en-us/previous-versions/azure/azure-monitor/app/monitor-web-app-availability) and [Azure standard Web Tests](https://learn.microsoft.com/en-us/azure/azure-monitor/app/availability-standard-tests).
+
+Azure classic Web Tests are cheaper but do not support headers. 
+If headers are set within a test, an Azure standard Web Tests will be created. For the rest of the time Azure classic Web Tests will be created.
 
 ## Example usage
 
@@ -24,6 +27,9 @@ locals {
             description               = "Getting some resource on my api"
             parse_dependent_requests  = true
             match_content             = "OK"
+            headers                   = {
+                foo = "bar"
+            }
         }
     }
 }
@@ -78,6 +84,7 @@ As of yet this is not something that can be taken care of at module level (see [
 | Name | Type |
 |------|------|
 | [azurerm_application_insights_web_test.web_test](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights_web_test) | resource |
+| [azurerm_application_insights_standard_web_test.standard_web_test](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights_standard_web_test) | resource |
 
 ## Inputs
 
@@ -93,7 +100,7 @@ As of yet this is not something that can be taken care of at module level (see [
 | <a name="input_default_retry_enabled"></a> [default\_retry\_enabled](#input\_default\_retry\_enabled) | (Optional) Allow for retries should those WebTests fail. Default is true | `bool` | `true` | no |
 | <a name="input_default_timeout"></a> [default\_timeout](#input\_default\_timeout) | (Optional) Default interval in seconds until those WebTests will timeout and fail. Valid options are 30, 60, 90 and 120. Default is 30 | `number` | `30` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map(any)` | `{}` | no |
-| <a name="input_urls"></a> [urls](#input\_urls) | (Required) Map of object that must at least contain an url parameter. Every default configuration can be overridden here | <pre>map(object({<br>    url                       = string<br>    method                    = optional(string)<br>    frequency                 = optional(number)<br>    timeout                   = optional(number)<br>    geo_locations             = optional(list(string))<br>    expected_http_status_code = optional(number)<br>    retry_enabled             = optional(bool)<br>    description               = optional(string)<br>    parse_dependent_requests  = optional(bool)<br>    match_content             = optional(string)<br>    }<br>  ))</pre> | n/a | yes |
+| <a name="input_urls"></a> [urls](#input\_urls) | (Required) Map of object that must at least contain an url parameter. Every default configuration can be overridden here | <pre>map(object({<br>    url                       = string<br>    method                    = optional(string)<br>    frequency                 = optional(number)<br>    timeout                   = optional(number)<br>    geo_locations             = optional(list(string))<br>    expected_http_status_code = optional(number)<br>    retry_enabled             = optional(bool)<br>    description               = optional(string)<br>    headers                   = optional(map(string))<br>    parse_dependent_requests  = optional(bool)<br>    match_content             = optional(string)<br>    }<br>  ))</pre> | n/a | yes |
 
 ## Outputs
 
